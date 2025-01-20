@@ -21,7 +21,10 @@
 Документация доступна по URL: http://localhost:8080/swagger-ui/index.html
 
 Как делать запросы:
-1) ![Получаем токен при регистрации](src/main/java/mobilePayment/mobilePayment/reference/img.png)
-2) ![Получаем токен при логине(когда токен протух)](src/main/java/mobilePayment/mobilePayment/reference/img_2.png)
-3) ![Отправляем токен при любом неразрешенном запросе в хедере Authorization с припиской вначале Bearer + пробел](src/main/java/mobilePayment/mobilePayment/reference/img_2.png)
+1) Получаем токен при регистраци: 
+![](src/main/java/mobilePayment/mobilePayment/reference/img.png)
+2) Получаем токен при логине. (когда токен протух):
+![](src/main/java/mobilePayment/mobilePayment/reference/img_2.png)
+3) Отправляем токен при любом неразрешенном запросе в хедере Authorization с припиской вначале Bearer + пробел
+![](src/main/java/mobilePayment/mobilePayment/reference/img_2.png)
 
