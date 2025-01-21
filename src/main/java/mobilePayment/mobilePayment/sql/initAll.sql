@@ -33,4 +33,6 @@ create table history
     phone_number_of_recipient varchar(256),
     date                      date,
     amount                    double precision
-)
+);
+insert into roles(name) values ('USER');
+insert into roles(name) values ('ADMIN');

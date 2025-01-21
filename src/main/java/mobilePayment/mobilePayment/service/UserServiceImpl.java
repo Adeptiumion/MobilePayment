@@ -52,16 +52,7 @@ public class UserServiceImpl implements UserService {
     private static final int DEFAULT_BALANCE = 1000;
 
     @Autowired
-    public UserServiceImpl
-            (
-                    PaymentHistoryRepository paymentHistoryRepository, UserRepository userRepository,
-                    RoleRepository roleRepository,
-                    PasswordEncoder passwordEncoder,
-                    @Qualifier("admin") Role adminRole,
-                    @Qualifier("user") Role userRole,
-                    Authenticator authenticator,
-                    JWTGenerator generator,
-                    ModelMapper modelMapper, UserValidator userValidator) {
+    public UserServiceImpl(PaymentHistoryRepository paymentHistoryRepository, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, @Qualifier("admin") Role adminRole, @Qualifier("user") Role userRole, Authenticator authenticator, JWTGenerator generator, ModelMapper modelMapper, UserValidator userValidator) {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -76,6 +67,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Метод возвращающий пользователя по номеру телефона.
+     *
      * @param phoneNumber номер телефона.
      * @return пользователь.
      */
@@ -88,7 +80,8 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Метод регистрации пользователя.
-     * @param userDTO кандидат на регистрацию.
+     *
+     * @param userDTO       кандидат на регистрацию.
      * @param bindingResult результат валидации.
      * @return {@link Answer}
      */
@@ -102,12 +95,6 @@ public class UserServiceImpl implements UserService {
         if (bindingResult.hasErrors())
             return new Answer(HttpStatus.BAD_REQUEST, getValidatorErrorMessage(bindingResult));
 
-        // Если нет ролей в таблице, добавлю их.
-        if (roleRepository.findAll().isEmpty()) {
-            roleRepository.save(userRole);
-            roleRepository.save(adminRole);
-        }
-
         // Инициализирую роли.
         user.setRoles(new HashSet<>());
 
@@ -120,8 +107,10 @@ public class UserServiceImpl implements UserService {
         // Шифрую пароль.
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
+
         // Даю стандартную роль.
-        user.getRoles().add(userRole);
+        user.getRoles().add(roleRepository.getByName(userRole.getName()));
+
         userRepository.save(user);
 
         return new Answer(HttpStatus.OK, generator.generate(userDTO.getPhoneNumber(), userDTO.getPhoneNumber()));
@@ -129,9 +118,10 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Метод перевода денег на другой аккаунт.
-     * @param header заголовок с токеном, из которого получим номер телефона отправителя.
+     *
+     * @param header                 заголовок с токеном, из которого получим номер телефона отправителя.
      * @param phoneNumberOfRecipient номер телефона получателя.
-     * @param amount сумма перевода.
+     * @param amount                 сумма перевода.
      * @return {@link Answer}
      */
     @Override
@@ -154,12 +144,7 @@ public class UserServiceImpl implements UserService {
             }
 
 
-            PaymentHistory paymentHistory = new PaymentHistory(
-                    phoneNumberOfRecipient,
-                    new Date(),
-                    amount,
-                    senderUser
-            );
+            PaymentHistory paymentHistory = new PaymentHistory(phoneNumberOfRecipient, new Date(), amount, senderUser);
             paymentHistoryRepository.save(paymentHistory);
 
             paymentHistory.setAmount(amount);
@@ -178,14 +163,15 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Метод редактирования пользовательских данных.
-     * @param header заголовок с токеном, из которого получим номер телефона пользователя. (которого будем менять)
-     * @param newUser данные для перезаписи.
+     *
+     * @param header        заголовок с токеном, из которого получим номер телефона пользователя. (которого будем менять)
+     * @param newUser       данные для перезаписи.
      * @param bindingResult результат валидации.
      * @return {@link Answer}
      */
     @Override
     @Transactional
-    public Answer editProfile(String header, UserForChangeDTO newUser , BindingResult bindingResult) {
+    public Answer editProfile(String header, UserForChangeDTO newUser, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors())
             return new Answer(HttpStatus.BAD_REQUEST, getValidatorErrorMessage(bindingResult));
@@ -202,19 +188,20 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Метод отправки истории денежных операций.
-     * @param header заголовок с токеном, из которого получим номер телефона пользователя. (историю которого мы будем отправлять)
+     *
+     * @param header   заголовок с токеном, из которого получим номер телефона пользователя. (историю которого мы будем отправлять)
      * @param pageable настройки пагинации.
      * @return список {@link PaymentHistory}.
      */
     @Override
     public Page<PaymentHistory> getPaymentHistoryByHeader(String header, Pageable pageable) {
-        return paymentHistoryRepository
-                .findAllByOwner(userRepository.getUserByPhoneNumber(generator.getPhoneNumberByHeader(header)), pageable);
+        return paymentHistoryRepository.findAllByOwner(userRepository.getUserByPhoneNumber(generator.getPhoneNumberByHeader(header)), pageable);
     }
 
     /**
      * Метод аутентификации пользователя. (При входе, когда токен протух.)
-     * @param userDTO данных для входа.
+     *
+     * @param userDTO       данных для входа.
      * @param bindingResult результат валидации.
      * @return {@link Answer}
      */
@@ -227,10 +214,7 @@ public class UserServiceImpl implements UserService {
         if (bindingResult.hasErrors())
             return new Answer(HttpStatus.BAD_REQUEST, getValidatorErrorMessage(bindingResult));
 
-        return authenticator.authenticate(userDTO.getPhoneNumber(), userDTO.getPassword()) ?
-                new Answer(HttpStatus.OK, generator.generate(userDTO.getPhoneNumber(), userDTO.getPassword()))
-                :
-               new Answer(HttpStatus.UNAUTHORIZED, "Неверные данные пользователя!");
+        return authenticator.authenticate(userDTO.getPhoneNumber(), userDTO.getPassword()) ? new Answer(HttpStatus.OK, generator.generate(userDTO.getPhoneNumber(), userDTO.getPassword())) : new Answer(HttpStatus.UNAUTHORIZED, "Неверные данные пользователя!");
     }
 
     @Override
@@ -246,7 +230,7 @@ public class UserServiceImpl implements UserService {
      * @param bindingResult {@link BindingResult}
      * @return сообщение ошибки.
      */
-    private  static String getValidatorErrorMessage(BindingResult bindingResult) {
+    private static String getValidatorErrorMessage(BindingResult bindingResult) {
         return bindingResult.getAllErrors().getFirst().getDefaultMessage();
     }
 
