@@ -6,7 +6,7 @@
 2) Получаем токен при логине. (когда токен протух):
 ![](src/main/java/mobilePayment/mobilePayment/reference/img_2.png)
 3) Отправляем токен при любом неразрешенном запросе в хедере Authorization с припиской вначале Bearer + пробел
-![](src/main/java/mobilePayment/mobilePayment/reference/img_2.png)
+![](src/main/java/mobilePayment/mobilePayment/reference/img_1.png)
 
 ТЗ:
 Напишите простое spring boot приложение, позволяющее имитировать оплату услуг мобильной связи. Предполагается, что в нем будет набор http-методов, принимающих запросы из стороннего клиента (Postman, wget, curl и т.д.), какого либо пользовательского web-интерфейса (UI на html и js) в приложении не требуется.
