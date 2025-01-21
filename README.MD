@@ -1,4 +1,5 @@
-Документация доступна по URL: http://localhost:8080/swagger-ui/index.html
+Документация доступна по URL: http://localhost:8080/swagger-ui/index.html 
+
 В папке sql можно найти скрипты для инициализации таблиц БД.
 
 Как делать запросы:
